@@ -48,11 +48,11 @@ server.on("listening", () => {
     console.log("Listening on " + bind);
 });
 
-if (process.env.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname, "../front/build")));
-    app.get("*", (req, res) => {
-        res.sendFile(path.join(__dirname, "../front/build", "index.html"));
-    });
-}
+// if (process.env.NODE_ENV === "production") {
+//     app.use(express.static(path.join(__dirname, "../front/build")));
+//     app.get("*", (req, res) => {
+//         res.sendFile(path.join(__dirname, "../front/build", "index.html"));
+//     });
+// }
 
 server.listen(port);

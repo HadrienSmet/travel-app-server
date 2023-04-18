@@ -2,9 +2,9 @@
 
 ## Intro
 
-Hi When I started this project I was dreaming about an app that would be the best friend of any traveler. An app where you could meet travellers standing nearby you, where you could posts every pictures and precising on a map where you took it, where you could share all your trips on a personal map (precise great hostels, great experiences, the cost of life, ...), where you could plan a trip and thanks to the data provided by the users a perfect trip would have been proposed in function of your style of trip (great roads to ride, great beaches to surf, great luxury hotels to stand, ... And warning you about the visa you need at the border in function of your nationality), where you could buy your plane's tickets, where you could book your hostels and hotels and even some links to your ambassy to get the visa you need and even an app where you could save your important papers in one securised place.
+Hi when I started this project I was dreaming about an app that would be the best friend of any traveller. An app where you could meet travellers standing nearby you, where you could post every pictures and precising on a map where you took it, where you could share all your trips on a personal map (precise great hostels, great experiences, the cost of life, ...), where you could plan a trip and thanks to the data provided by the users a perfect trip would have been proposed in function of your life style (great roads to ride, great beaches to surf, great luxury hotels to stand, ... And warning you about the hard border to cross in function of your nationality), where you could buy your plane's tickets, where you could book your hostels and hotels and even some links to your ambassy to get the visa you need and even an app where you could save your important papers in one securised place.
 
-Well, this is the version I developped during this last month. And I know it is far from the version I was dreaming about.
+Well, this is the version I started developping. And I know it is far from the version I was dreaming about.
 You need Node and a text editor to host this app on your computer
 
 ## How to get the project from GitHub:

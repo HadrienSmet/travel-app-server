@@ -11,9 +11,15 @@ exports.createPost = (req, res, next) => {
     if (req.files[0] === undefined) {
         url = "";
     } else {
-        url = `${req.protocol}://${req.get("host")}/images/${
-            req.files[0].filename
-        }`;
+        // url = `${req.protocol}://${req.get("host")}/images/${
+        //     req.files[0].filename
+        // }`;
+        url =
+            process.env.NODE_ENV === "development"
+                ? `${req.protocol}://${req.get("host")}/images/${
+                      req.files[0].filename
+                  }`
+                : `${process.env.API_URL}/images/${req.files[0].filename}`;
     }
     delete postObject._userId;
     let { country, pseudo, profilePicture, text, date } =
@@ -49,18 +55,32 @@ exports.modifyPost = (req, res, next) => {
             imageUrl: "",
         };
     } else if (req.file) {
+        const url =
+            process.env.NODE_ENV === "development"
+                ? `${req.protocol}://${req.get("host")}/images/${
+                      req.file.filename
+                  }`
+                : `${process.env.API_URL}/images/${req.file.filename}`;
         postObject = {
             ...req.body,
-            imageUrl: `${req.protocol}://${req.get("host")}/images/${
-                req.file.filename
-            }`,
+            imageUrl: url,
+            // imageUrl: `${req.protocol}://${req.get("host")}/images/${
+            //     req.file.filename
+            // }`,
         };
     } else if (req.files) {
+        const url =
+            process.env.NODE_ENV === "development"
+                ? `${req.protocol}://${req.get("host")}/images/${
+                      req.files[0].filename
+                  }`
+                : `${process.env.API_URL}/images/${req.files[0].filename}`;
         postObject = {
             ...req.body,
-            imageUrl: `${req.protocol}://${req.get("host")}/images/${
-                req.files[0].filename
-            }`,
+            // imageUrl: `${req.protocol}://${req.get("host")}/images/${
+            //     req.files[0].filename
+            // }`,
+            imageUrl: url,
         };
     } else {
         postObject = { ...req.body };

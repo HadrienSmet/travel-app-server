@@ -54,16 +54,26 @@ exports.uploadUserPictures = (req, res, next) => {
             if (user._id != req.auth.userId) {
                 res.status(403).json({ error });
             } else {
-                let urlProfilePicture = `${req.protocol}://${req.get(
-                    "host"
-                )}/images/${req.files[0].filename}`;
+                let urlProfilePicture =
+                    process.env.NODE_ENV === "development"
+                        ? `${req.protocol}://${req.get("host")}/images/${
+                              req.files[0].filename
+                          }`
+                        : `${process.env.API_URL}/images/${req.files[0].filename}`;
+
+                // let urlProfilePicture = `${process.env.API_URL}/images/${req.files[0].filename}`;
                 let urlsAlbumPictures = [];
                 for (let i = 1; i < req.files.length; i++) {
-                    urlsAlbumPictures.push(
-                        `${req.protocol}://${req.get("host")}/images/${
-                            req.files[i].filename
-                        }`
-                    );
+                    const current =
+                        process.env.NODE_ENV === "development"
+                            ? `${req.protocol}://${req.get("host")}/images/${
+                                  req.files[i].filename
+                              }`
+                            : `${process.env.API_URL}/images/${req.files[i].filename}`;
+                    // urlsAlbumPictures.push(
+                    //     `${process.env.API_URL}/images/${req.files[i].filename}`
+                    // );
+                    urlsAlbumPictures.push(current);
                 }
                 UserModel.updateOne(
                     { _id: req.auth.userId },
@@ -118,22 +128,18 @@ exports.login = (req, res, next) => {
     UserModel.findOne({ email: req.body.email })
         .then((user) => {
             if (!user) {
-                return res
-                    .status(401)
-                    .json({
-                        message:
-                            "Cet email n'est pas présent dans notre base de donnée",
-                    });
+                return res.status(401).json({
+                    message:
+                        "Cet email n'est pas présent dans notre base de donnée",
+                });
             }
             bcrypt
                 .compare(req.body.password, user.password)
                 .then((valid) => {
                     if (!valid) {
-                        return res
-                            .status(401)
-                            .json({
-                                message: "Paire login/mot de passe incorrecte",
-                            });
+                        return res.status(401).json({
+                            message: "Paire login/mot de passe incorrecte",
+                        });
                     }
                     res.status(200).json({
                         email: user.email,
@@ -174,11 +180,16 @@ exports.uploadAlbum = (req, res, next) => {
             } else {
                 let urlsAlbumPictures = [];
                 for (let i = 0; i < req.files.length; i++) {
-                    urlsAlbumPictures.push(
-                        `${req.protocol}://${req.get("host")}/images/${
-                            req.files[i].filename
-                        }`
-                    );
+                    const current =
+                        process.env.NODE_ENV === "development"
+                            ? `${req.protocol}://${req.get("host")}/images/${
+                                  req.files[i].filename
+                              }`
+                            : `${process.env.API_URL}/images/${req.files[i].filename}`;
+                    urlsAlbumPictures.push(current);
+                    // urlsAlbumPictures.push(
+                    //     `${process.env.API_URL}/images/${req.files[i].filename}`
+                    // );
                 }
                 let album = {
                     name: req.body.name,
@@ -195,21 +206,17 @@ exports.uploadAlbum = (req, res, next) => {
                         })
                     )
                     .catch((error) =>
-                        res
-                            .status(400)
-                            .json({
-                                message:
-                                    "Quelque chose a planté durant la modification..",
-                            })
+                        res.status(400).json({
+                            message:
+                                "Quelque chose a planté durant la modification..",
+                        })
                     );
             }
         })
         .catch((error) =>
-            res
-                .status(400)
-                .json({
-                    message: "On ne trouve pas d'utilisateur possédant cet id",
-                })
+            res.status(400).json({
+                message: "On ne trouve pas d'utilisateur possédant cet id",
+            })
         );
 };
 
@@ -234,21 +241,17 @@ exports.addNewTrip = (req, res, next) => {
                         })
                     )
                     .catch((error) =>
-                        res
-                            .status(400)
-                            .json({
-                                message:
-                                    "Quelque chose a planté durant la modification..",
-                            })
+                        res.status(400).json({
+                            message:
+                                "Quelque chose a planté durant la modification..",
+                        })
                     );
             }
         })
         .catch((error) =>
-            res
-                .status(400)
-                .json({
-                    message: "On ne trouve pas d'utilisateur possédant cet id",
-                })
+            res.status(400).json({
+                message: "On ne trouve pas d'utilisateur possédant cet id",
+            })
         );
 };
 
@@ -275,30 +278,23 @@ exports.followUser = (req, res, next) => {
                     { $push: { following: req.body.pseudo } }
                 )
                     .then((userModified) =>
-                        res
-                            .status(201)
-                            .json({
-                                message:
-                                    "Vous suivez maintenant cet utilisateur",
-                            })
+                        res.status(201).json({
+                            message: "Vous suivez maintenant cet utilisateur",
+                        })
                     )
                     .catch((err) =>
-                        res
-                            .status(500)
-                            .json({
-                                message:
-                                    "Notre serveur ne souhaite pas que vous vous socialisez",
-                            })
+                        res.status(500).json({
+                            message:
+                                "Notre serveur ne souhaite pas que vous vous socialisez",
+                        })
                     );
             }
         })
         .catch((err) =>
-            res
-                .status(404)
-                .json({
-                    message:
-                        "Nous ne retrouvons pas cet utilisateur dans notre base de données",
-                })
+            res.status(404).json({
+                message:
+                    "Nous ne retrouvons pas cet utilisateur dans notre base de données",
+            })
         );
 };
 
@@ -315,29 +311,23 @@ exports.unfollowUser = (req, res, next) => {
                     { $pull: { following: req.body.pseudo } }
                 )
                     .then((userModified) =>
-                        res
-                            .status(201)
-                            .json({
-                                message: "Vous ne suivez plus cet utilisateur",
-                            })
+                        res.status(201).json({
+                            message: "Vous ne suivez plus cet utilisateur",
+                        })
                     )
                     .catch((err) =>
-                        res
-                            .status(500)
-                            .json({
-                                message:
-                                    "Notre serveur souhaite que vous vous socialisez un peu plus...",
-                            })
+                        res.status(500).json({
+                            message:
+                                "Notre serveur souhaite que vous vous socialisez un peu plus...",
+                        })
                     );
             }
         })
         .catch((err) =>
-            res
-                .status(404)
-                .json({
-                    message:
-                        "Nous ne retrouvons pas cet utilisateur dans notre base de données",
-                })
+            res.status(404).json({
+                message:
+                    "Nous ne retrouvons pas cet utilisateur dans notre base de données",
+            })
         );
 };
 
@@ -349,28 +339,22 @@ exports.newFollower = (req, res, next) => {
                 { $push: { followers: req.body.pseudo } }
             )
                 .then((userModified) =>
-                    res
-                        .status(201)
-                        .json({
-                            message: "Un utilisateur a commencé à vous suivre!",
-                        })
+                    res.status(201).json({
+                        message: "Un utilisateur a commencé à vous suivre!",
+                    })
                 )
                 .catch((err) =>
-                    res
-                        .status(500)
-                        .json({
-                            message:
-                                "Notre serveur ne souhaite pas que la popularité vous monte à la tête",
-                        })
+                    res.status(500).json({
+                        message:
+                            "Notre serveur ne souhaite pas que la popularité vous monte à la tête",
+                    })
                 );
         })
         .catch((err) =>
-            res
-                .status(404)
-                .json({
-                    message:
-                        "Nous ne retrouvons pas cet utilisateur dans notre base de données",
-                })
+            res.status(404).json({
+                message:
+                    "Nous ne retrouvons pas cet utilisateur dans notre base de données",
+            })
         );
 };
 
@@ -382,28 +366,22 @@ exports.lostFollower = (req, res, next) => {
                 { $pull: { followers: req.body.pseudo } }
             )
                 .then((userModified) =>
-                    res
-                        .status(201)
-                        .json({
-                            message: "Un utilisateur a arrêté à vous suivre!",
-                        })
+                    res.status(201).json({
+                        message: "Un utilisateur a arrêté à vous suivre!",
+                    })
                 )
                 .catch((err) =>
-                    res
-                        .status(500)
-                        .json({
-                            message:
-                                "Notre serveur ne souhaite pas voir votre popularité défaillir",
-                        })
+                    res.status(500).json({
+                        message:
+                            "Notre serveur ne souhaite pas voir votre popularité défaillir",
+                    })
                 );
         })
         .catch((err) =>
-            res
-                .status(404)
-                .json({
-                    message:
-                        "Nous ne retrouvons pas cet utilisateur dans notre base de données",
-                })
+            res.status(404).json({
+                message:
+                    "Nous ne retrouvons pas cet utilisateur dans notre base de données",
+            })
         );
 };
 
@@ -411,12 +389,10 @@ exports.checkMail = (req, res, next) => {
     UserModel.findOne({ email: req.params.email })
         .then((user) => res.status(200).json(user))
         .catch((err) =>
-            res
-                .status(400)
-                .json({
-                    message:
-                        "Cette adresse email n'est pas encore présente dans la base donnée",
-                })
+            res.status(400).json({
+                message:
+                    "Cette adresse email n'est pas encore présente dans la base donnée",
+            })
         );
 };
 
@@ -424,12 +400,10 @@ exports.checkPseudo = (req, res, next) => {
     UserModel.findOne({ pseudo: req.params.pseudo })
         .then((user) => res.status(200).json(user))
         .catch((err) =>
-            res
-                .status(400)
-                .json({
-                    message:
-                        "Ce pseudo n'est pas encore présent dans la base donnée",
-                })
+            res.status(400).json({
+                message:
+                    "Ce pseudo n'est pas encore présent dans la base donnée",
+            })
         );
 };
 
@@ -445,9 +419,13 @@ exports.setCoverPicture = (req, res, next) => {
                     user.coverPicture === undefined ||
                     user.coverPicture === null
                 ) {
-                    let urlCoverPicture = `${req.protocol}://${req.get(
-                        "host"
-                    )}/images/${req.files[0].filename}`;
+                    // let urlCoverPicture = `${process.env.API_URL}/images/${req.files[0].filename}`;
+                    const urlCoverPicture =
+                        process.env.NODE_ENV === "development"
+                            ? `${req.protocol}://${req.get("host")}/images/${
+                                  req.files[0].filename
+                              }`
+                            : `${process.env.API_URL}/images/${req.files[0].filename}`;
                     UserModel.updateOne(
                         { _id: req.params.id },
                         { $set: { coverPicture: urlCoverPicture } }
@@ -459,19 +437,24 @@ exports.setCoverPicture = (req, res, next) => {
                             })
                         )
                         .catch((err) =>
-                            res
-                                .status(400)
-                                .json({
-                                    message:
-                                        "Mauvaise requete l'update a mal tourné",
-                                })
+                            res.status(400).json({
+                                message:
+                                    "Mauvaise requete l'update a mal tourné",
+                            })
                         );
                 } else {
                     const filename = user.coverPicture.split("/images/")[1];
                     fs.unlink(`images/${filename}`, () => {
-                        let urlCoverPicture = `${req.protocol}://${req.get(
-                            "host"
-                        )}/images/${req.files[0].filename}`;
+                        // let urlCoverPicture = `${req.protocol}://${req.get(
+                        //     "host"
+                        // )}/images/${req.files[0].filename}`;
+                        // let urlCoverPicture = `${process.env.API_URL}/images/${req.files[0].filename}`;
+                        const urlCoverPicture =
+                            process.env.NODE_ENV === "development"
+                                ? `${req.protocol}://${req.get(
+                                      "host"
+                                  )}/images/${req.files[0].filename}`
+                                : `${process.env.API_URL}/images/${req.files[0].filename}`;
                         UserModel.updateOne(
                             { _id: req.params.id },
                             { $set: { coverPicture: urlCoverPicture } }
@@ -483,23 +466,19 @@ exports.setCoverPicture = (req, res, next) => {
                                 })
                             )
                             .catch((err) =>
-                                res
-                                    .status(400)
-                                    .json({
-                                        message:
-                                            "Mauvaise requete l'update a mal tourné",
-                                    })
+                                res.status(400).json({
+                                    message:
+                                        "Mauvaise requete l'update a mal tourné",
+                                })
                             );
                     });
                 }
             }
         })
         .catch((err) =>
-            res
-                .status(404)
-                .json({
-                    message:
-                        "Notre serveur ne trouve aucun utilisateur possédant cet id",
-                })
+            res.status(404).json({
+                message:
+                    "Notre serveur ne trouve aucun utilisateur possédant cet id",
+            })
         );
 };

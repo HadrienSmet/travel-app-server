@@ -60,7 +60,7 @@ exports.uploadUserPictures = (req, res, next) => {
                               req.files[0].filename
                           }`
                         : `${process.env.API_URL}/images/${req.files[0].filename}`;
-
+                console.log("ctrlrs - user l:63 url pp: " + urlProfilePicture);
                 // let urlProfilePicture = `${process.env.API_URL}/images/${req.files[0].filename}`;
                 let urlsAlbumPictures = [];
                 for (let i = 1; i < req.files.length; i++) {
@@ -74,6 +74,7 @@ exports.uploadUserPictures = (req, res, next) => {
                     //     `${process.env.API_URL}/images/${req.files[i].filename}`
                     // );
                     urlsAlbumPictures.push(current);
+                    console.log("ctrlrs - user l:77 url current: " + current);
                 }
                 UserModel.updateOne(
                     { _id: req.auth.userId },

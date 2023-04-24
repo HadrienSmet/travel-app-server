@@ -49,32 +49,17 @@ exports.signup = (req, res, next) => {
 //If the user is found we take care to be sure about the authentification by comparing the user's id and the one from the auth middleware
 //If everything is ok we can set the new key a the root of the user object
 exports.uploadUserPictures = (req, res, next) => {
+    console.log(req.files[0].originalname);
     UserModel.findOne({ _id: req.params.id })
         .then((user) => {
             if (user._id != req.auth.userId) {
                 res.status(403).json({ error });
             } else {
-                let urlProfilePicture =
-                    process.env.NODE_ENV === "development"
-                        ? `${req.protocol}://${req.get("host")}/images/${
-                              req.files[0].filename
-                          }`
-                        : `${process.env.API_URL}/images/${req.files[0].filename}`;
-                console.log("ctrlrs - user l:63 url pp: " + urlProfilePicture);
-                // let urlProfilePicture = `${process.env.API_URL}/images/${req.files[0].filename}`;
+                let urlProfilePicture = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].originalname}`;
                 let urlsAlbumPictures = [];
                 for (let i = 1; i < req.files.length; i++) {
-                    const current =
-                        process.env.NODE_ENV === "development"
-                            ? `${req.protocol}://${req.get("host")}/images/${
-                                  req.files[i].filename
-                              }`
-                            : `${process.env.API_URL}/images/${req.files[i].filename}`;
-                    // urlsAlbumPictures.push(
-                    //     `${process.env.API_URL}/images/${req.files[i].filename}`
-                    // );
+                    let current = `https://storage.googleapis.com/travel-app-bucket/${req.files[i].originalname}`;
                     urlsAlbumPictures.push(current);
-                    console.log("ctrlrs - user l:77 url current: " + current);
                 }
                 UserModel.updateOne(
                     { _id: req.auth.userId },
@@ -181,16 +166,8 @@ exports.uploadAlbum = (req, res, next) => {
             } else {
                 let urlsAlbumPictures = [];
                 for (let i = 0; i < req.files.length; i++) {
-                    const current =
-                        process.env.NODE_ENV === "development"
-                            ? `${req.protocol}://${req.get("host")}/images/${
-                                  req.files[i].filename
-                              }`
-                            : `${process.env.API_URL}/images/${req.files[i].filename}`;
+                    let current = `https://storage.googleapis.com/travel-app-bucket/${req.files[i].originalname}`;
                     urlsAlbumPictures.push(current);
-                    // urlsAlbumPictures.push(
-                    //     `${process.env.API_URL}/images/${req.files[i].filename}`
-                    // );
                 }
                 let album = {
                     name: req.body.name,
@@ -420,13 +397,7 @@ exports.setCoverPicture = (req, res, next) => {
                     user.coverPicture === undefined ||
                     user.coverPicture === null
                 ) {
-                    // let urlCoverPicture = `${process.env.API_URL}/images/${req.files[0].filename}`;
-                    const urlCoverPicture =
-                        process.env.NODE_ENV === "development"
-                            ? `${req.protocol}://${req.get("host")}/images/${
-                                  req.files[0].filename
-                              }`
-                            : `${process.env.API_URL}/images/${req.files[0].filename}`;
+                    const urlCoverPicture = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].originalname}`;
                     UserModel.updateOne(
                         { _id: req.params.id },
                         { $set: { coverPicture: urlCoverPicture } }
@@ -444,18 +415,9 @@ exports.setCoverPicture = (req, res, next) => {
                             })
                         );
                 } else {
-                    const filename = user.coverPicture.split("/images/")[1];
-                    fs.unlink(`images/${filename}`, () => {
-                        // let urlCoverPicture = `${req.protocol}://${req.get(
-                        //     "host"
-                        // )}/images/${req.files[0].filename}`;
-                        // let urlCoverPicture = `${process.env.API_URL}/images/${req.files[0].filename}`;
-                        const urlCoverPicture =
-                            process.env.NODE_ENV === "development"
-                                ? `${req.protocol}://${req.get(
-                                      "host"
-                                  )}/images/${req.files[0].filename}`
-                                : `${process.env.API_URL}/images/${req.files[0].filename}`;
+                    const originalname = user.coverPicture.split("/images/")[1];
+                    fs.unlink(`images/${originalname}`, () => {
+                        const urlCoverPicture = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].originalname}`;
                         UserModel.updateOne(
                             { _id: req.params.id },
                             { $set: { coverPicture: urlCoverPicture } }

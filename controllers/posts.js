@@ -1,6 +1,17 @@
 const Post = require("../models/Post");
 const fs = require("fs");
-const { log } = require("console");
+const { Storage } = require("@google-cloud/storage");
+const path = require("path");
+
+const googleCloud = new Storage({
+    keyFilename: path.join(
+        __dirname,
+        "../positive-nuance-384615-ccbb6d20f605.json"
+    ),
+    projectId: "positive-nuance-384615",
+});
+
+const gcFiles = googleCloud.bucket("travel-app-bucket");
 
 //Creates a new post : --> Gets the data from the request
 //Deletes id and user id for security reasons
@@ -11,15 +22,7 @@ exports.createPost = (req, res, next) => {
     if (req.files[0] === undefined) {
         url = "";
     } else {
-        // url = `${req.protocol}://${req.get("host")}/images/${
-        //     req.files[0].filename
-        // }`;
-        url =
-            process.env.NODE_ENV === "development"
-                ? `${req.protocol}://${req.get("host")}/images/${
-                      req.files[0].filename
-                  }`
-                : `${process.env.API_URL}/images/${req.files[0].filename}`;
+        url = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].filename}`;
     }
     delete postObject._userId;
     let { country, pseudo, profilePicture, text, date } =
@@ -55,31 +58,15 @@ exports.modifyPost = (req, res, next) => {
             imageUrl: "",
         };
     } else if (req.file) {
-        const url =
-            process.env.NODE_ENV === "development"
-                ? `${req.protocol}://${req.get("host")}/images/${
-                      req.file.filename
-                  }`
-                : `${process.env.API_URL}/images/${req.file.filename}`;
+        const url = `https://storage.googleapis.com/travel-app-bucket/${req.file.filename}`;
         postObject = {
             ...req.body,
             imageUrl: url,
-            // imageUrl: `${req.protocol}://${req.get("host")}/images/${
-            //     req.file.filename
-            // }`,
         };
     } else if (req.files) {
-        const url =
-            process.env.NODE_ENV === "development"
-                ? `${req.protocol}://${req.get("host")}/images/${
-                      req.files[0].filename
-                  }`
-                : `${process.env.API_URL}/images/${req.files[0].filename}`;
+        const url = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].filename}`;
         postObject = {
             ...req.body,
-            // imageUrl: `${req.protocol}://${req.get("host")}/images/${
-            //     req.files[0].filename
-            // }`,
             imageUrl: url,
         };
     } else {
@@ -92,20 +79,38 @@ exports.modifyPost = (req, res, next) => {
                 post.userId == req.auth.userId ||
                 process.env.ADMIN_ACCOUNT_ID == req.auth.userId
             ) {
-                const filename = post.imageUrl.split("/images/")[1];
+                const filename = post.imageUrl.split("/travel-app-bucket/")[1];
                 if (req.files) {
-                    fs.unlink(`images/${filename}`, () => {
-                        Post.updateOne(
-                            { _id: req.params.id },
-                            { ...postObject, id: req.params.id }
-                        )
-                            .then(() =>
-                                res
-                                    .status(200)
-                                    .json({ message: "Post modifié!" })
+                    const file = gcFiles.file(filename);
+                    file.delete()
+                        .then(() => {
+                            Post.updateOne(
+                                { _id: req.params.id },
+                                { ...postObject, id: req.params.id }
                             )
-                            .catch((error) => res.status(401).json({ error }));
-                    });
+                                .then(() =>
+                                    res
+                                        .status(200)
+                                        .json({ message: "Post modifié!" })
+                                )
+                                .catch((error) =>
+                                    res.status(401).json({ error })
+                                );
+                        })
+                        .catch((error) => res.status(401).json({ error }));
+
+                    // fs.unlink(`images/${filename}`, () => {
+                    //     Post.updateOne(
+                    //         { _id: req.params.id },
+                    //         { ...postObject, id: req.params.id }
+                    //     )
+                    //         .then(() =>
+                    //             res
+                    //                 .status(200)
+                    //                 .json({ message: "Post modifié!" })
+                    //         )
+                    //         .catch((error) => res.status(401).json({ error }));
+                    // });
                 } else {
                     Post.updateOne(
                         { _id: req.params.id },
@@ -130,14 +135,19 @@ exports.deletePost = (req, res, next) => {
                 post.userId == req.auth.userId ||
                 process.env.ADMIN_ACCOUNT_ID == req.auth.userId
             ) {
-                const filename = post.imageUrl.split("/images/")[1];
-                fs.unlink(`images/${filename}`, () => {
-                    Post.deleteOne({ _id: req.params.id })
-                        .then(() =>
-                            res.status(200).json({ message: "Post supprimé !" })
-                        )
-                        .catch((error) => res.status(401).json({ error }));
-                });
+                const filename = post.imageUrl.split("/travel-app-bucket/")[1];
+                const file = gcFiles.file(filename);
+                file.delete()
+                    .then(() => {
+                        Post.deleteOne({ _id: req.params.id })
+                            .then(() =>
+                                res
+                                    .status(200)
+                                    .json({ message: "Post supprimé !" })
+                            )
+                            .catch((error) => res.status(401).json({ error }));
+                    })
+                    .catch((error) => res.status(401).json({ error }));
             } else {
                 res.status(403).json({ message: "Not authorized" });
             }

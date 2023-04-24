@@ -37,7 +37,7 @@ const upload = multer({
 const uploadMiddleware = upload.any("file");
 
 const uploadToGCS = (file, req) => {
-    const timestamp = new Date();
+    const timestamp = Date.now();
     const fileName = `${path.parse(file.originalname).name}-${timestamp}.${
         MIME_TYPES[file.mimetype]
     }`;

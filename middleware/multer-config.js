@@ -11,7 +11,8 @@ const MIME_TYPES = {
 const googleCloud = new Storage({
     keyFilename: path.join(
         __dirname,
-        "../positive-nuance-384615-ccbb6d20f605.json"
+        // "../positive-nuance-384615-ccbb6d20f605.json"
+        `../${process.env.GOOGLE_APPLICATION_CREDENTIALS}`
     ),
     projectId: "positive-nuance-384615",
 });

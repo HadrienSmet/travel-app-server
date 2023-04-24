@@ -1,5 +1,4 @@
 const Post = require("../models/Post");
-const fs = require("fs");
 const { Storage } = require("@google-cloud/storage");
 const path = require("path");
 
@@ -22,7 +21,7 @@ exports.createPost = (req, res, next) => {
     if (req.files[0] === undefined) {
         url = "";
     } else {
-        url = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].originalname}`;
+        url = `${process.env.GCS_URL}${req.files[0].originalname}`;
     }
     delete postObject._userId;
     let { country, pseudo, profilePicture, text, date } =
@@ -58,13 +57,13 @@ exports.modifyPost = (req, res, next) => {
             imageUrl: "",
         };
     } else if (req.file) {
-        const url = `https://storage.googleapis.com/travel-app-bucket/${req.file.originalname}`;
+        const url = `${process.env.GCS_URL}${req.file.originalname}`;
         postObject = {
             ...req.body,
             imageUrl: url,
         };
     } else if (req.files) {
-        const url = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].originalname}`;
+        const url = `${process.env.GCS_URL}${req.files[0].originalname}`;
         postObject = {
             ...req.body,
             imageUrl: url,
@@ -100,7 +99,6 @@ exports.modifyPost = (req, res, next) => {
                                 );
                         })
                         .catch((error) => res.status(401).json({ error }));
-
                     // fs.unlink(`images/${originalname}`, () => {
                     //     Post.updateOne(
                     //         { _id: req.params.id },

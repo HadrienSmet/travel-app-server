@@ -1,8 +1,18 @@
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-// const fs = require("fs");
+const { Storage } = require("@google-cloud/storage");
+const path = require("path");
 const UserModel = require("../models/User");
+const googleCloud = new Storage({
+    keyFilename: path.join(
+        __dirname,
+        "../positive-nuance-384615-ccbb6d20f605.json"
+    ),
+    projectId: "positive-nuance-384615",
+});
+
+const gcFiles = googleCloud.bucket("travel-app-bucket");
 
 //Handles what happens when the user submits the sign up form
 //Starts by hashing the password --> 10 times
@@ -54,10 +64,10 @@ exports.uploadUserPictures = (req, res, next) => {
             if (user._id != req.auth.userId) {
                 res.status(403).json({ error });
             } else {
-                let urlProfilePicture = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].originalname}`;
+                let urlProfilePicture = `${process.env.GCS_URL}${req.files[0].originalname}`;
                 let urlsAlbumPictures = [];
                 for (let i = 1; i < req.files.length; i++) {
-                    let current = `https://storage.googleapis.com/travel-app-bucket/${req.files[i].originalname}`;
+                    let current = `${process.env.GCS_URL}${req.files[i].originalname}`;
                     urlsAlbumPictures.push(current);
                 }
                 UserModel.updateOne(
@@ -165,7 +175,7 @@ exports.uploadAlbum = (req, res, next) => {
             } else {
                 let urlsAlbumPictures = [];
                 for (let i = 0; i < req.files.length; i++) {
-                    let current = `https://storage.googleapis.com/travel-app-bucket/${req.files[i].originalname}`;
+                    let current = `${process.env.GCS_URL}${req.files[i].originalname}`;
                     urlsAlbumPictures.push(current);
                 }
                 let album = {
@@ -396,7 +406,7 @@ exports.setCoverPicture = (req, res, next) => {
                     user.coverPicture === undefined ||
                     user.coverPicture === null
                 ) {
-                    const urlCoverPicture = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].originalname}`;
+                    const urlCoverPicture = `${process.env.GCS_URL}${req.files[0].originalname}`;
                     UserModel.updateOne(
                         { _id: req.params.id },
                         { $set: { coverPicture: urlCoverPicture } }
@@ -417,10 +427,10 @@ exports.setCoverPicture = (req, res, next) => {
                     const originalname = post.imageUrl.split(
                         "/travel-app-bucket/"
                     )[1];
-                    const filename = gcFiles.file(filename);
+                    const filename = gcFiles.file(originalname);
                     file.delete()
                         .then(() => {
-                            const urlCoverPicture = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].originalname}`;
+                            const urlCoverPicture = `${process.env.GCS_URL}${req.files[0].originalname}`;
                             UserModel.updateOne(
                                 { _id: req.params.id },
                                 { $set: { coverPicture: urlCoverPicture } }
@@ -441,7 +451,7 @@ exports.setCoverPicture = (req, res, next) => {
                         })
                         .catch((error) => res.status(401).json({ error }));
                     // fs.unlink(`images/${originalname}`, () => {
-                    //     const urlCoverPicture = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].originalname}`;
+                    //     const urlCoverPicture = `${process.env.GCS_URL}${req.files[0].originalname}`;
                     //     UserModel.updateOne(
                     //         { _id: req.params.id },
                     //         { $set: { coverPicture: urlCoverPicture } }

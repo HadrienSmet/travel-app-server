@@ -22,7 +22,7 @@ exports.createPost = (req, res, next) => {
     if (req.files[0] === undefined) {
         url = "";
     } else {
-        url = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].filename}`;
+        url = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].originalname}`;
     }
     delete postObject._userId;
     let { country, pseudo, profilePicture, text, date } =
@@ -58,13 +58,13 @@ exports.modifyPost = (req, res, next) => {
             imageUrl: "",
         };
     } else if (req.file) {
-        const url = `https://storage.googleapis.com/travel-app-bucket/${req.file.filename}`;
+        const url = `https://storage.googleapis.com/travel-app-bucket/${req.file.originalname}`;
         postObject = {
             ...req.body,
             imageUrl: url,
         };
     } else if (req.files) {
-        const url = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].filename}`;
+        const url = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].originalname}`;
         postObject = {
             ...req.body,
             imageUrl: url,
@@ -79,9 +79,11 @@ exports.modifyPost = (req, res, next) => {
                 post.userId == req.auth.userId ||
                 process.env.ADMIN_ACCOUNT_ID == req.auth.userId
             ) {
-                const filename = post.imageUrl.split("/travel-app-bucket/")[1];
+                const originalname = post.imageUrl.split(
+                    "/travel-app-bucket/"
+                )[1];
                 if (req.files) {
-                    const file = gcFiles.file(filename);
+                    const file = gcFiles.file(originalname);
                     file.delete()
                         .then(() => {
                             Post.updateOne(
@@ -99,7 +101,7 @@ exports.modifyPost = (req, res, next) => {
                         })
                         .catch((error) => res.status(401).json({ error }));
 
-                    // fs.unlink(`images/${filename}`, () => {
+                    // fs.unlink(`images/${originalname}`, () => {
                     //     Post.updateOne(
                     //         { _id: req.params.id },
                     //         { ...postObject, id: req.params.id }
@@ -135,8 +137,10 @@ exports.deletePost = (req, res, next) => {
                 post.userId == req.auth.userId ||
                 process.env.ADMIN_ACCOUNT_ID == req.auth.userId
             ) {
-                const filename = post.imageUrl.split("/travel-app-bucket/")[1];
-                const file = gcFiles.file(filename);
+                const originalname = post.imageUrl.split(
+                    "/travel-app-bucket/"
+                )[1];
+                const file = gcFiles.file(originalname);
                 file.delete()
                     .then(() => {
                         Post.deleteOne({ _id: req.params.id })

@@ -1,7 +1,7 @@
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const fs = require("fs");
+// const fs = require("fs");
 const UserModel = require("../models/User");
 
 //Handles what happens when the user submits the sign up form
@@ -49,7 +49,6 @@ exports.signup = (req, res, next) => {
 //If the user is found we take care to be sure about the authentification by comparing the user's id and the one from the auth middleware
 //If everything is ok we can set the new key a the root of the user object
 exports.uploadUserPictures = (req, res, next) => {
-    console.log(req.files[0].originalname);
     UserModel.findOne({ _id: req.params.id })
         .then((user) => {
             if (user._id != req.auth.userId) {
@@ -415,26 +414,51 @@ exports.setCoverPicture = (req, res, next) => {
                             })
                         );
                 } else {
-                    const originalname = user.coverPicture.split("/images/")[1];
-                    fs.unlink(`images/${originalname}`, () => {
-                        const urlCoverPicture = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].originalname}`;
-                        UserModel.updateOne(
-                            { _id: req.params.id },
-                            { $set: { coverPicture: urlCoverPicture } }
-                        )
-                            .then(() =>
-                                res.status(201).json({
-                                    message: "Photo de couverture mise à jour!",
-                                    coverPicture: urlCoverPicture,
-                                })
+                    const originalname = post.imageUrl.split(
+                        "/travel-app-bucket/"
+                    )[1];
+                    const filename = gcFiles.file(filename);
+                    file.delete()
+                        .then(() => {
+                            const urlCoverPicture = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].originalname}`;
+                            UserModel.updateOne(
+                                { _id: req.params.id },
+                                { $set: { coverPicture: urlCoverPicture } }
                             )
-                            .catch((err) =>
-                                res.status(400).json({
-                                    message:
-                                        "Mauvaise requete l'update a mal tourné",
-                                })
-                            );
-                    });
+                                .then(() =>
+                                    res.status(201).json({
+                                        message:
+                                            "Photo de couverture mise à jour!",
+                                        coverPicture: urlCoverPicture,
+                                    })
+                                )
+                                .catch((err) =>
+                                    res.status(400).json({
+                                        message:
+                                            "Mauvaise requete l'update a mal tourné",
+                                    })
+                                );
+                        })
+                        .catch((error) => res.status(401).json({ error }));
+                    // fs.unlink(`images/${originalname}`, () => {
+                    //     const urlCoverPicture = `https://storage.googleapis.com/travel-app-bucket/${req.files[0].originalname}`;
+                    //     UserModel.updateOne(
+                    //         { _id: req.params.id },
+                    //         { $set: { coverPicture: urlCoverPicture } }
+                    //     )
+                    //         .then(() =>
+                    //             res.status(201).json({
+                    //                 message: "Photo de couverture mise à jour!",
+                    //                 coverPicture: urlCoverPicture,
+                    //             })
+                    //         )
+                    //         .catch((err) =>
+                    //             res.status(400).json({
+                    //                 message:
+                    //                     "Mauvaise requete l'update a mal tourné",
+                    //             })
+                    //         );
+                    // });
                 }
             }
         })

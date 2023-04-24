@@ -60,6 +60,8 @@ module.exports = (req, res, next) => {
         req.files.forEach((file) => {
             uploadToGCS(file, req);
         });
-        next();
+        setTimeout(() => {
+            next();
+        }, 1000);
     });
 };

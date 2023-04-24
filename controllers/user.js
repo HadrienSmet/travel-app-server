@@ -68,8 +68,10 @@ exports.uploadUserPictures = (req, res, next) => {
                 let urlProfilePicture = `${process.env.GCS_URL}${req.files[0].originalname}`;
                 let urlsAlbumPictures = [];
                 for (let i = 1; i < req.files.length; i++) {
-                    let current = `${process.env.GCS_URL}${req.files[i].originalname}`;
-                    urlsAlbumPictures.push(current);
+                    if (req.files[i].originalname !== undefined) {
+                        let current = `${process.env.GCS_URL}${req.files[i].originalname}`;
+                        urlsAlbumPictures.push(current);
+                    }
                 }
                 UserModel.updateOne(
                     { _id: req.auth.userId },

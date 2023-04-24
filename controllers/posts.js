@@ -22,7 +22,7 @@ exports.createPost = (req, res, next) => {
     if (req.files[0] === undefined) {
         url = "";
     } else {
-        url = `${process.env.GCS_URL}${req.files[0].originalname}`;
+        url = `${process.env.GCS_URL}${req.files[0].filename}`;
     }
     delete postObject._userId;
     let { country, pseudo, profilePicture, text, date } =
@@ -58,13 +58,13 @@ exports.modifyPost = (req, res, next) => {
             imageUrl: "",
         };
     } else if (req.file) {
-        const url = `${process.env.GCS_URL}${req.file.originalname}`;
+        const url = `${process.env.GCS_URL}${req.file.filename}`;
         postObject = {
             ...req.body,
             imageUrl: url,
         };
     } else if (req.files) {
-        const url = `${process.env.GCS_URL}${req.files[0].originalname}`;
+        const url = `${process.env.GCS_URL}${req.files[0].filename}`;
         postObject = {
             ...req.body,
             imageUrl: url,

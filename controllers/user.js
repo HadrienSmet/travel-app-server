@@ -65,11 +65,11 @@ exports.uploadUserPictures = (req, res, next) => {
             if (user._id != req.auth.userId) {
                 res.status(403).json({ error });
             } else {
-                let urlProfilePicture = `${process.env.GCS_URL}${req.files[0].originalname}`;
+                let urlProfilePicture = `${process.env.GCS_URL}${req.files[0].filename}`;
                 let urlsAlbumPictures = [];
                 for (let i = 1; i < req.files.length; i++) {
-                    if (req.files[i].originalname !== undefined) {
-                        let current = `${process.env.GCS_URL}${req.files[i].originalname}`;
+                    if (req.files[i].filename !== undefined) {
+                        let current = `${process.env.GCS_URL}${req.files[i].filename}`;
                         urlsAlbumPictures.push(current);
                     }
                 }
@@ -178,8 +178,8 @@ exports.uploadAlbum = (req, res, next) => {
             } else {
                 let urlsAlbumPictures = [];
                 for (let i = 0; i < req.files.length; i++) {
-                    if (req.files[i].originalname !== undefined) {
-                        let current = `${process.env.GCS_URL}${req.files[i].originalname}`;
+                    if (req.files[i].filename !== undefined) {
+                        let current = `${process.env.GCS_URL}${req.files[i].filename}`;
                         urlsAlbumPictures.push(current);
                     }
                 }
@@ -411,7 +411,7 @@ exports.setCoverPicture = (req, res, next) => {
                     user.coverPicture === undefined ||
                     user.coverPicture === null
                 ) {
-                    const urlCoverPicture = `${process.env.GCS_URL}${req.files[0].originalname}`;
+                    const urlCoverPicture = `${process.env.GCS_URL}${req.files[0].filename}`;
                     UserModel.updateOne(
                         { _id: req.params.id },
                         { $set: { coverPicture: urlCoverPicture } }
@@ -432,10 +432,10 @@ exports.setCoverPicture = (req, res, next) => {
                     const originalname = post.imageUrl.split(
                         "/travel-app-bucket/"
                     )[1];
-                    const filename = gcFiles.file(originalname);
+                    const file = gcFiles.file(originalname);
                     file.delete()
                         .then(() => {
-                            const urlCoverPicture = `${process.env.GCS_URL}${req.files[0].originalname}`;
+                            const urlCoverPicture = `${process.env.GCS_URL}${req.files[0].filename}`;
                             UserModel.updateOne(
                                 { _id: req.params.id },
                                 { $set: { coverPicture: urlCoverPicture } }

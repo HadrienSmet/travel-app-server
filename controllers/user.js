@@ -7,10 +7,9 @@ const UserModel = require("../models/User");
 const googleCloud = new Storage({
     keyFilename: path.join(
         __dirname,
-        // "../positive-nuance-384615-ccbb6d20f605.json"
         `../${process.env.GOOGLE_APPLICATION_CREDENTIALS}`
     ),
-    projectId: "positive-nuance-384615",
+    projectId: process.env.GCS_ID,
 });
 
 const gcFiles = googleCloud.bucket("travel-app-bucket");
@@ -65,12 +64,16 @@ exports.uploadUserPictures = (req, res, next) => {
             if (user._id != req.auth.userId) {
                 res.status(403).json({ error });
             } else {
-                let urlProfilePicture = `${process.env.GCS_URL}${req.files[0].filename}`;
+                let urlProfilePicture = undefined;
                 let urlsAlbumPictures = [];
-                for (let i = 1; i < req.files.length; i++) {
+                for (let i = 0; i < req.files.length; i++) {
                     if (req.files[i].filename !== undefined) {
-                        let current = `${process.env.GCS_URL}${req.files[i].filename}`;
-                        urlsAlbumPictures.push(current);
+                        if (urlProfilePicture === undefined) {
+                            urlProfilePicture = `${process.env.GCS_URL}${req.files[i].filename}`;
+                        } else {
+                            let current = `${process.env.GCS_URL}${req.files[i].filename}`;
+                            urlsAlbumPictures.push(current);
+                        }
                     }
                 }
                 UserModel.updateOne(
@@ -411,7 +414,11 @@ exports.setCoverPicture = (req, res, next) => {
                     user.coverPicture === undefined ||
                     user.coverPicture === null
                 ) {
-                    const urlCoverPicture = `${process.env.GCS_URL}${req.files[0].filename}`;
+                    let urlCoverPicture;
+                    for (let i = 0; i < req.files.length; i++) {
+                        if (req.files[i].filename !== undefined)
+                            urlCoverPicture = `${process.env.GCS_URL}${req.files[i].filename}`;
+                    }
                     UserModel.updateOne(
                         { _id: req.params.id },
                         { $set: { coverPicture: urlCoverPicture } }
@@ -435,7 +442,11 @@ exports.setCoverPicture = (req, res, next) => {
                     const file = gcFiles.file(originalname);
                     file.delete()
                         .then(() => {
-                            const urlCoverPicture = `${process.env.GCS_URL}${req.files[0].filename}`;
+                            let urlCoverPicture;
+                            for (let i = 0; i < req.files.length; i++) {
+                                if (req.files[i].filename !== undefined)
+                                    urlCoverPicture = `${process.env.GCS_URL}${req.files[i].filename}`;
+                            }
                             UserModel.updateOne(
                                 { _id: req.params.id },
                                 { $set: { coverPicture: urlCoverPicture } }

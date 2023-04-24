@@ -5,10 +5,9 @@ const path = require("path");
 const googleCloud = new Storage({
     keyFilename: path.join(
         __dirname,
-        // `../positive-nuance-384615-ccbb6d20f605.json`
         `../${process.env.GOOGLE_APPLICATION_CREDENTIALS}`
     ),
-    projectId: "positive-nuance-384615",
+    projectId: process.env.GCS_ID,
 });
 
 const gcFiles = googleCloud.bucket("travel-app-bucket");
@@ -22,7 +21,11 @@ exports.createPost = (req, res, next) => {
     if (req.files[0] === undefined) {
         url = "";
     } else {
-        url = `${process.env.GCS_URL}${req.files[0].filename}`;
+        console.log(req.files);
+        for (let i = 0; i < req.files.length; i++) {
+            if (req.files[i].filename !== undefined)
+                url = `${process.env.GCS_URL}${req.files[i].filename}`;
+        }
     }
     delete postObject._userId;
     let { country, pseudo, profilePicture, text, date } =
@@ -64,7 +67,11 @@ exports.modifyPost = (req, res, next) => {
             imageUrl: url,
         };
     } else if (req.files) {
-        const url = `${process.env.GCS_URL}${req.files[0].filename}`;
+        let url;
+        for (let i = 0; i < req.files.length; i++) {
+            if (req.files[i].filename !== undefined)
+                url = `${process.env.GCS_URL}${req.files[i].filename}`;
+        }
         postObject = {
             ...req.body,
             imageUrl: url,

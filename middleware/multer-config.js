@@ -37,18 +37,22 @@ const upload = multer({
 const uploadMiddleware = upload.any("file");
 
 const uploadToGCS = (file, req) => {
-    const blob = gcFiles.file(file.originalname);
+    const timestamp = new Date().toISOString().replace(/:/g, "-");
+    const fileName = `${path.parse(file.originalname).name}-${timestamp}.${
+        MIME_TYPES[file.mimetype]
+    }`;
+    const blob = gcFiles.file(fileName);
     const stream = blob.createWriteStream({
         metadata: {
             contentType: file.mimetype,
         },
     });
     stream.on("error", (err) => {
-        console.error(`Error uploading file ${file.originalname}:`, err);
+        console.error(`Error uploading file ${fileName}:`, err);
     });
     stream.on("finish", () => {
-        console.log(`File ${file.originalname} uploaded.`);
-        req.files.push({ filename: file.originalname });
+        console.log(`File ${fileName} uploaded.`);
+        req.files.push({ filename: fileName });
     });
     stream.end(file.buffer);
 };

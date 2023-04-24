@@ -178,8 +178,10 @@ exports.uploadAlbum = (req, res, next) => {
             } else {
                 let urlsAlbumPictures = [];
                 for (let i = 0; i < req.files.length; i++) {
-                    let current = `${process.env.GCS_URL}${req.files[i].originalname}`;
-                    urlsAlbumPictures.push(current);
+                    if (req.files[i].originalname !== undefined) {
+                        let current = `${process.env.GCS_URL}${req.files[i].originalname}`;
+                        urlsAlbumPictures.push(current);
+                    }
                 }
                 let album = {
                     name: req.body.name,
@@ -453,25 +455,6 @@ exports.setCoverPicture = (req, res, next) => {
                                 );
                         })
                         .catch((error) => res.status(401).json({ error }));
-                    // fs.unlink(`images/${originalname}`, () => {
-                    //     const urlCoverPicture = `${process.env.GCS_URL}${req.files[0].originalname}`;
-                    //     UserModel.updateOne(
-                    //         { _id: req.params.id },
-                    //         { $set: { coverPicture: urlCoverPicture } }
-                    //     )
-                    //         .then(() =>
-                    //             res.status(201).json({
-                    //                 message: "Photo de couverture mise à jour!",
-                    //                 coverPicture: urlCoverPicture,
-                    //             })
-                    //         )
-                    //         .catch((err) =>
-                    //             res.status(400).json({
-                    //                 message:
-                    //                     "Mauvaise requete l'update a mal tourné",
-                    //             })
-                    //         );
-                    // });
                 }
             }
         })

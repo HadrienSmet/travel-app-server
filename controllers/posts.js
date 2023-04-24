@@ -100,18 +100,6 @@ exports.modifyPost = (req, res, next) => {
                                 );
                         })
                         .catch((error) => res.status(401).json({ error }));
-                    // fs.unlink(`images/${originalname}`, () => {
-                    //     Post.updateOne(
-                    //         { _id: req.params.id },
-                    //         { ...postObject, id: req.params.id }
-                    //     )
-                    //         .then(() =>
-                    //             res
-                    //                 .status(200)
-                    //                 .json({ message: "Post modifié!" })
-                    //         )
-                    //         .catch((error) => res.status(401).json({ error }));
-                    // });
                 } else {
                     Post.updateOne(
                         { _id: req.params.id },

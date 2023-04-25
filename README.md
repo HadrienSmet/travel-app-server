@@ -35,11 +35,18 @@ _The second line will copy every directories and files from the GitHub repositor
     - Inside this file you have to writte those lines:
 
     ```
-     ACCESS_TOKEN_SECRET=$<RandomToken>
-     REFRESH_TOKEN_SECRET=$<OtherRandomToken>
+    ACCESS_TOKEN_SECRET=<secretRandomToken>
+    REFRESH_TOKEN_SECRET=<secretRandomToken>
 
-     ADMIN_ACCOUNT_ID=<UserIdGeneratedByMongoDb>
-     MONGO_URI=<mongodb+srv://<AnyNameOfYourChoice>:<PasswordGeneratedByMongoDB>@<clusterName>.<randomCode>.mongodb.net/?retryWrites=true&w=majority>
+    ADMIN_ACCOUNT_ID=<adminAccountId>
+    MONGODB_URI=<mongoDbUrl
+
+    API_URL=<ApiUrl>
+
+    GCS_ID=<googleCloudStorageProjectId>
+    GCS_URL=<googleCloudStorageFilesUrl>
+    GOOGLE_APPLICATION_CREDENTIALS=<credentialsFileName>
+    GOOGLE_CREDENTIALS=<credentialsFileContent>
     ```
     _The two first lines refers to the token for the authentification_
     _To create those random tokens writte those commands in you terminal:_
@@ -52,10 +59,14 @@ _The second line will copy every directories and files from the GitHub repositor
 
     _You have now two differents strings to fill the fields._ :grinning:
     _The line just after the tokens refers to the account of the admin on the app_
-    _The last line refers to your mongoDB adress wich should look like this:
+    _The fourth line refers to your mongoDB adress wich should look like this:
     ```
         <mongodb+srv://<AnyNameOfYourChoice>:<PasswordGeneratedByMongoDB>@<clusterName>.<randomCode>.mongodb.net/?retryWrites=true&w=majority>
     ```
+    _Then you have the url of your server (local server, heroku, ...)
+    _The four last lines refers to the credentials to link this project to your GCS account
+
+    All your environments virables are now set! :grin:
 
 ### 3. Lauching this project
 
@@ -64,4 +75,5 @@ _The second line will copy every directories and files from the GitHub repositor
     nodemon server
     ```
 
-I hope that everything worked fine for you have a good day :innocent:
+I hope that everything worked fine for you! :ok_hand:
+Have a good day :innocent:

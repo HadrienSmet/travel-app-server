@@ -403,6 +403,7 @@ exports.checkPseudo = (req, res, next) => {
 };
 
 exports.setCoverPicture = (req, res, next) => {
+    console.log(req.params.id);
     UserModel.findOne({ _id: req.params.id })
         .then((user) => {
             if (user._id != req.auth.userId) {
@@ -436,7 +437,7 @@ exports.setCoverPicture = (req, res, next) => {
                             })
                         );
                 } else {
-                    const originalname = post.imageUrl.split(
+                    const originalname = user.coverPicture.split(
                         "/travel-app-bucket/"
                     )[1];
                     const file = gcFiles.file(originalname);

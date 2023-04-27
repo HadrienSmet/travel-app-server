@@ -57,14 +57,14 @@ _To create those random tokens writte those commands in you terminal:_
     require('crypto').randomBytes(64).toString('hex')
     ```
 
-_You have now two differents strings to fill the fields._ :grinning:
-_The line just after the tokens refers to the account of the admin on the app_
-_The fourth line refers to your mongoDB adress wich should look like this:
+You have now two differents strings to fill the fields. :grinning:
+The line just after the tokens refers to the account of the admin on the app
+The fourth line refers to your mongoDB adress wich should look like this:
     ```
         <mongodb+srv://<AnyNameOfYourChoice>:<PasswordGeneratedByMongoDB>@<clusterName>.<randomCode>.mongodb.net/?retryWrites=true&w=majority>
     ```
-_Then you have the url of your server (local server, heroku, ...)
-_The four last lines refers to the credentials to link this project to your GCS account
+Then you have the url of your server (local server, heroku, ...)
+The four last lines refers to the credentials to link this project to your GCS account
 
 All your environments virables are now set! :grin:
 

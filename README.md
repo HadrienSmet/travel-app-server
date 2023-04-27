@@ -25,14 +25,14 @@ _The second line will copy every directories and files from the GitHub repositor
 
 ### 1. Install all the libraries necessary for this project:
 
-    - When you are standing on the right directory on your terminal, writte this line:
+- When you are standing on the right directory on your terminal, writte this line:
     ```
     npm install
     ```
 
 ### 2. Create a file inside this project and call it: "_.env_".
 
-    - Inside this file you have to writte those lines:
+- Inside this file you have to writte those lines:
 
     ```
     ACCESS_TOKEN_SECRET=<secretRandomToken>
@@ -48,8 +48,8 @@ _The second line will copy every directories and files from the GitHub repositor
     GOOGLE_APPLICATION_CREDENTIALS=<credentialsFileName>
     GOOGLE_CREDENTIALS=<credentialsFileContent>
     ```
-    _The two first lines refers to the token for the authentification_
-    _To create those random tokens writte those commands in you terminal:_
+_The two first lines refers to the token for the authentification_
+_To create those random tokens writte those commands in you terminal:_
 
     ```
     node
@@ -57,20 +57,20 @@ _The second line will copy every directories and files from the GitHub repositor
     require('crypto').randomBytes(64).toString('hex')
     ```
 
-    _You have now two differents strings to fill the fields._ :grinning:
-    _The line just after the tokens refers to the account of the admin on the app_
-    _The fourth line refers to your mongoDB adress wich should look like this:
+_You have now two differents strings to fill the fields._ :grinning:
+_The line just after the tokens refers to the account of the admin on the app_
+_The fourth line refers to your mongoDB adress wich should look like this:
     ```
         <mongodb+srv://<AnyNameOfYourChoice>:<PasswordGeneratedByMongoDB>@<clusterName>.<randomCode>.mongodb.net/?retryWrites=true&w=majority>
     ```
-    _Then you have the url of your server (local server, heroku, ...)
-    _The four last lines refers to the credentials to link this project to your GCS account
+_Then you have the url of your server (local server, heroku, ...)
+_The four last lines refers to the credentials to link this project to your GCS account
 
-    All your environments virables are now set! :grin:
+All your environments virables are now set! :grin:
 
 ### 3. Lauching this project
 
-    - In your terminal writte this command:
+- In your terminal writte this command:
     ```
     nodemon server
     ```

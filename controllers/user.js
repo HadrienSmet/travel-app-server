@@ -14,7 +14,7 @@ const googleCloud = new Storage({
 
 const gcFiles = googleCloud.bucket("travel-app-bucket");
 
-const handleCoverPicture = () => {
+const handleCoverPicture = (req, res) => {
     let urlCoverPicture;
     for (let i = 0; i < req.files.length; i++) {
         if (req.files[i].filename !== undefined)
@@ -437,17 +437,21 @@ exports.setCoverPicture = (req, res, next) => {
                     user.coverPicture === undefined ||
                     user.coverPicture === null
                 ) {
-                    handleCoverPicture();
+                    handleCoverPicture(req, res);
                 } else {
                     const originalname = user.coverPicture.split(
                         "/travel-app-bucket/"
                     )[1];
+                    console.log(originalname);
                     const file = gcFiles.file(originalname);
                     file.delete()
                         .then(() => {
-                            handleCoverPicture();
+                            handleCoverPicture(req, res);
                         })
-                        .catch((error) => res.status(401).json({ error }));
+                        .catch((error) => {
+                            console.log(error);
+                            res.status(401).json({ error });
+                        });
                 }
             }
         })

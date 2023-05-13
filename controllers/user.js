@@ -14,6 +14,29 @@ const googleCloud = new Storage({
 
 const gcFiles = googleCloud.bucket("travel-app-bucket");
 
+const handleCoverPicture = (req, res) => {
+    let urlCoverPicture;
+    for (let i = 0; i < req.files.length; i++) {
+        if (req.files[i].filename !== undefined)
+            urlCoverPicture = `${process.env.GCS_URL}${req.files[i].filename}`;
+    }
+    UserModel.updateOne(
+        { _id: req.params.id },
+        { $set: { coverPicture: urlCoverPicture } }
+    )
+        .then(() =>
+            res.status(201).json({
+                message: "Photo de couverture mise à jour!",
+                coverPicture: urlCoverPicture,
+            })
+        )
+        .catch(() =>
+            res.status(400).json({
+                message: "Mauvaise requete l'update a mal tourné",
+            })
+        );
+};
+
 //Handles what happens when the user submits the sign up form
 //Starts by hashing the password --> 10 times
 // --> Warning: bcrypt.hash is async function
@@ -194,13 +217,13 @@ exports.uploadAlbum = (req, res, next) => {
                     { _id: req.auth.userId },
                     { $push: { albums: album } }
                 )
-                    .then((updatedUser) =>
+                    .then(() =>
                         res.status(201).json({
                             message: "Album sauvegardé dans la base de donnée!",
                             newAlbum: album,
                         })
                     )
-                    .catch((error) =>
+                    .catch(() =>
                         res.status(400).json({
                             message:
                                 "Quelque chose a planté durant la modification..",
@@ -208,7 +231,7 @@ exports.uploadAlbum = (req, res, next) => {
                     );
             }
         })
-        .catch((error) =>
+        .catch(() =>
             res.status(400).json({
                 message: "On ne trouve pas d'utilisateur possédant cet id",
             })
@@ -228,14 +251,14 @@ exports.addNewTrip = (req, res, next) => {
                     { _id: req.auth.userId },
                     { $push: { previousTrips: trip } }
                 )
-                    .then((updatedUser) =>
+                    .then(() =>
                         res.status(201).json({
                             message:
                                 "Voyage sauvegardé dans la base de donnée!",
                             newTrip: trip,
                         })
                     )
-                    .catch((error) =>
+                    .catch(() =>
                         res.status(400).json({
                             message:
                                 "Quelque chose a planté durant la modification..",
@@ -243,7 +266,7 @@ exports.addNewTrip = (req, res, next) => {
                     );
             }
         })
-        .catch((error) =>
+        .catch(() =>
             res.status(400).json({
                 message: "On ne trouve pas d'utilisateur possédant cet id",
             })
@@ -272,12 +295,12 @@ exports.followUser = (req, res, next) => {
                     { _id: req.auth.userId },
                     { $push: { following: req.body.pseudo } }
                 )
-                    .then((userModified) =>
+                    .then(() =>
                         res.status(201).json({
                             message: "Vous suivez maintenant cet utilisateur",
                         })
                     )
-                    .catch((err) =>
+                    .catch(() =>
                         res.status(500).json({
                             message:
                                 "Notre serveur ne souhaite pas que vous vous socialisez",
@@ -285,7 +308,7 @@ exports.followUser = (req, res, next) => {
                     );
             }
         })
-        .catch((err) =>
+        .catch(() =>
             res.status(404).json({
                 message:
                     "Nous ne retrouvons pas cet utilisateur dans notre base de données",
@@ -305,12 +328,12 @@ exports.unfollowUser = (req, res, next) => {
                     { _id: req.auth.userId },
                     { $pull: { following: req.body.pseudo } }
                 )
-                    .then((userModified) =>
+                    .then(() =>
                         res.status(201).json({
                             message: "Vous ne suivez plus cet utilisateur",
                         })
                     )
-                    .catch((err) =>
+                    .catch(() =>
                         res.status(500).json({
                             message:
                                 "Notre serveur souhaite que vous vous socialisez un peu plus...",
@@ -318,7 +341,7 @@ exports.unfollowUser = (req, res, next) => {
                     );
             }
         })
-        .catch((err) =>
+        .catch(() =>
             res.status(404).json({
                 message:
                     "Nous ne retrouvons pas cet utilisateur dans notre base de données",
@@ -328,24 +351,24 @@ exports.unfollowUser = (req, res, next) => {
 
 exports.newFollower = (req, res, next) => {
     UserModel.findOne({ _id: req.params.id })
-        .then((user) => {
+        .then(() => {
             UserModel.updateOne(
                 { _id: req.params.id },
                 { $push: { followers: req.body.pseudo } }
             )
-                .then((userModified) =>
+                .then(() =>
                     res.status(201).json({
                         message: "Un utilisateur a commencé à vous suivre!",
                     })
                 )
-                .catch((err) =>
+                .catch(() =>
                     res.status(500).json({
                         message:
                             "Notre serveur ne souhaite pas que la popularité vous monte à la tête",
                     })
                 );
         })
-        .catch((err) =>
+        .catch(() =>
             res.status(404).json({
                 message:
                     "Nous ne retrouvons pas cet utilisateur dans notre base de données",
@@ -355,24 +378,24 @@ exports.newFollower = (req, res, next) => {
 
 exports.lostFollower = (req, res, next) => {
     UserModel.findOne({ _id: req.params.id })
-        .then((user) => {
+        .then(() => {
             UserModel.updateOne(
                 { _id: req.params.id },
                 { $pull: { followers: req.body.pseudo } }
             )
-                .then((userModified) =>
+                .then(() =>
                     res.status(201).json({
                         message: "Un utilisateur a arrêté à vous suivre!",
                     })
                 )
-                .catch((err) =>
+                .catch(() =>
                     res.status(500).json({
                         message:
                             "Notre serveur ne souhaite pas voir votre popularité défaillir",
                     })
                 );
         })
-        .catch((err) =>
+        .catch(() =>
             res.status(404).json({
                 message:
                     "Nous ne retrouvons pas cet utilisateur dans notre base de données",
@@ -383,7 +406,7 @@ exports.lostFollower = (req, res, next) => {
 exports.checkMail = (req, res, next) => {
     UserModel.findOne({ email: req.params.email })
         .then((user) => res.status(200).json(user))
-        .catch((err) =>
+        .catch(() =>
             res.status(400).json({
                 message:
                     "Cette adresse email n'est pas encore présente dans la base donnée",
@@ -394,7 +417,7 @@ exports.checkMail = (req, res, next) => {
 exports.checkPseudo = (req, res, next) => {
     UserModel.findOne({ pseudo: req.params.pseudo })
         .then((user) => res.status(200).json(user))
-        .catch((err) =>
+        .catch(() =>
             res.status(400).json({
                 message:
                     "Ce pseudo n'est pas encore présent dans la base donnée",
@@ -403,7 +426,6 @@ exports.checkPseudo = (req, res, next) => {
 };
 
 exports.setCoverPicture = (req, res, next) => {
-    console.log(req.params.id);
     UserModel.findOne({ _id: req.params.id })
         .then((user) => {
             if (user._id != req.auth.userId) {
@@ -415,58 +437,21 @@ exports.setCoverPicture = (req, res, next) => {
                     user.coverPicture === undefined ||
                     user.coverPicture === null
                 ) {
-                    let urlCoverPicture;
-                    for (let i = 0; i < req.files.length; i++) {
-                        if (req.files[i].filename !== undefined)
-                            urlCoverPicture = `${process.env.GCS_URL}${req.files[i].filename}`;
-                    }
-                    UserModel.updateOne(
-                        { _id: req.params.id },
-                        { $set: { coverPicture: urlCoverPicture } }
-                    )
-                        .then((userModified) =>
-                            res.status(201).json({
-                                message: "Photo de couverture mise à jour!",
-                                coverPicture: urlCoverPicture,
-                            })
-                        )
-                        .catch((err) =>
-                            res.status(400).json({
-                                message:
-                                    "Mauvaise requete l'update a mal tourné",
-                            })
-                        );
+                    handleCoverPicture(req, res);
                 } else {
                     const originalname = user.coverPicture.split(
                         "/travel-app-bucket/"
                     )[1];
+                    console.log(originalname);
                     const file = gcFiles.file(originalname);
                     file.delete()
                         .then(() => {
-                            let urlCoverPicture;
-                            for (let i = 0; i < req.files.length; i++) {
-                                if (req.files[i].filename !== undefined)
-                                    urlCoverPicture = `${process.env.GCS_URL}${req.files[i].filename}`;
-                            }
-                            UserModel.updateOne(
-                                { _id: req.params.id },
-                                { $set: { coverPicture: urlCoverPicture } }
-                            )
-                                .then(() =>
-                                    res.status(201).json({
-                                        message:
-                                            "Photo de couverture mise à jour!",
-                                        coverPicture: urlCoverPicture,
-                                    })
-                                )
-                                .catch((err) =>
-                                    res.status(400).json({
-                                        message:
-                                            "Mauvaise requete l'update a mal tourné",
-                                    })
-                                );
+                            handleCoverPicture(req, res);
                         })
-                        .catch((error) => res.status(401).json({ error }));
+                        .catch((error) => {
+                            console.log(error);
+                            res.status(401).json({ error });
+                        });
                 }
             }
         })
